@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sensible Neurographie – N. medianus rechts</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    label { display: block; margin-top: 1rem; }
+    input, select, button { margin-top: 0.5rem; }
+    #output { margin-top: 2rem; font-weight: bold; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+
+  <h1>Sensible Neurographie – N. medianus rechts</h1>
+
+  <form id="medianusForm">
+    <label>
+      Amplitude SNAP (in µV):
+      <input type="number" step="0.1" id="amplitude" required />
+    </label>
+
+    <label>
+      Alter:
+      <select id="alter" required>
+        <option value="">Bitte wählen</option>
+        <option value="20-30">20–30 Jahre</option>
+        <option value="31-40">31–40 Jahre</option>
+        <option value="41-50">41–50 Jahre</option>
+        <option value="51-60">51–60 Jahre</option>
+        <option value="61-70">61–70 Jahre</option>
+      </select>
+    </label>
+
+    <label>
+      Gemessene Nervenleitgeschwindigkeit (in m/s):
+      <input type="number" step="0.1" id="leitwert" required />
+    </label>
+
+    <button type="submit">Befund generieren</button>
+  </form>
+
+  <div id="output"></div>
+
+  <a href="../index.html">Zurück zur Startseite</a>
+
+  <script>
+    const normGeschwindigkeit = {
+      "20-30": 53,
+      "31-40": 50,
+      "41-50": 47,
+      "51-60": 44,
+      "61-70": 41
+    };
+
+    const LLNAmplitude = 6.9;
+
+    document.getElementById("medianusForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const amplitude = parseFloat(document.getElementById("amplitude").value);
+      const alter = document.getElementById("alter").value;
+      const leitwert = parseFloat(document.getElementById("leitwert").value);
+      const normLeitwert = normGeschwindigkeit[alter];
+
+      const ampOk = amplitude >= LLNAmplitude;
+      const leitOk = leitwert >= normLeitwert;
+
+      const ampProzent = Math.round((amplitude / LLNAmplitude) * 100);
+      const leitProzent = Math.round((leitwert / normLeitwert) * 100);
+
+      let text = "";
+
+      if (ampOk && leitOk) {
+        text = "Nach Stimulation über dem N. medianus rechts kommen alle Parameter unauffällig zur Darstellung.";
+      } else if (!ampOk && leitOk) {
+        text = `Nach Ableitung über dem N. medianus rechts zeigt sich eine verminderte Amplitude (${ampProzent}% of LLN) bei normaler sensibler antidromer Nervenleitgeschwindigkeit.`;
+      } else if (ampOk && !leitOk) {
+        text = `Nach Stimulation über dem N. medianus rechts zeigt sich eine verlangsamte sensible antidrome Nervenleitgeschwindigkeit (${leitProzent}% of LLN) bei normwertiger Amplitude.`;
+      } else {
+        text = `Nach Stimulation über dem N. medianus rechts zeigen sich eine reduzierte Amplitude (${ampProzent}% of LLN) sowie eine verlangsamte sensible antidrome Nervenleitgeschwindigkeit (${leitProzent}% of LLN).`;
+      }
+
+      document.getElementById("output").textContent = text;
+    });
+  </script>
+
+</body>
+</html>
